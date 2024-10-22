@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  app:
+    build: . #signifie que Docker Compose va chercher un fichier Dockerfile dans ce répertoire et l'utiliser pour créer l'image du conteneur.
+    image: pong
+    container_name: pong
+    volumes:
+      - ./pong:/app # Monte le dossier local "pong" dans le conteneur
+    command: /bin/bash -c "/app/init.sh && /bin/bash"
+    tty: true  # Garde le terminal ouvert
