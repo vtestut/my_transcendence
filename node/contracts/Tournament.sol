@@ -8,11 +8,9 @@ contract PongTournament {
         uint256 player2Id;
         uint8[2] scores;
         uint256 winnerId;
-        uint256 date;
     }
 
     struct Tournament {
-        uint256 date;
         mapping(uint256 => Match) matches;
         uint256 matchCount;
         uint256[] rankings;
@@ -24,65 +22,63 @@ contract PongTournament {
     modifier onlyAdmin() { require(msg.sender == admin, "Only admin can do this"); _; }
     constructor() { admin = msg.sender; }
 
-    // Fonction pour ajouter un tournoi et ses matchs en un seul appel
-    function addTournament(
-        uint256 _tournamentId,            // ID du tournoi fourni par le backend
-        uint256 _date,                    // Date du tournoi
-        uint256[] memory _rankings,       // Classement final basé sur les IDs de joueurs
-        uint256[] memory _matchIds,       // Tableau des IDs des matchs fournis par le backend
-        uint256[] memory _player1Ids,     // Tableau des IDs des joueurs 1 pour chaque match
-        uint256[] memory _player2Ids,     // Tableau des IDs des joueurs 2 pour chaque match
-        uint8[2][] memory _scores,        // Tableau des scores des deux joueurs pour chaque match
-        uint256[] memory _winnerIds,      // Tableau des IDs des gagnants pour chaque match
-        uint256[] memory _dates           // Tableau des dates pour chaque match
-    ) public onlyAdmin {
-        // Vérification que le tournoi avec cet ID n'existe pas déjà
-        require(tournaments[_tournamentId].date == 0, "Tournament with this ID already exists");
+    event TournamentCreated(uint256 tournamentId);
+    event MatchAdded(uint256 matchId, uint256 player1Id, uint256 player2Id);
 
-        // Si la vérification passe, nous pouvons créer le tournoi
+    function addTournament(
+        uint256 _tournamentId,
+        uint256[] memory _rankings,
+        uint256[] memory _matchIds,
+        uint256[] memory _player1Ids,
+        uint256[] memory _player2Ids,
+        uint8[2][] memory _scores,
+        uint256[] memory _winnerIds
+    ) public onlyAdmin {
+
         Tournament storage newTournament = tournaments[_tournamentId];
-        newTournament.date = _date;
         newTournament.rankings = _rankings;
         newTournament.matchCount = 0;
+        
+        require(newTournament.matchCount == 0, "Tournament with this ID already exists");
 
-        // Vérifier que tous les tableaux ont la même longueur (consistance des données)
         require(_matchIds.length == _player1Ids.length && 
                 _matchIds.length == _player2Ids.length && 
                 _matchIds.length == _scores.length && 
-                _matchIds.length == _winnerIds.length &&
-                _matchIds.length == _dates.length,
+                _matchIds.length == _winnerIds.length,
                 "Inconsistent array lengths");
 
-        // Boucler sur les données pour ajouter les matchs avec les matchIds fournis par le backend
         for (uint256 i = 0; i < _matchIds.length; i++) {
-            uint256 matchId = _matchIds[i]; // Utiliser l'ID du match fourni par le backend
+            uint256 matchId = _matchIds[i];
             newTournament.matches[matchId] = Match({
                 player1Id: _player1Ids[i],
                 player2Id: _player2Ids[i],
                 scores: _scores[i],
-                winnerId: _winnerIds[i],
-                date: _dates[i]
+                winnerId: _winnerIds[i]
             });
             newTournament.matchCount++;
+
+            emit MatchAdded(matchId, _player1Ids[i], _player2Ids[i]);
         }
+
+        emit TournamentCreated(_tournamentId);
     }
 
-    // Fonction pour obtenir les détails d'un match
     function getMatch(uint256 _tournamentId, uint256 _matchId) public view returns (Match memory) {
         return tournaments[_tournamentId].matches[_matchId];
     }
 
-    // Fonction pour obtenir les détails d'un tournoi
     function getTournament(uint256 _tournamentId) public view returns (
-        uint256 date,
         uint256 matchCount,
         uint256[] memory rankings
     ) {
         Tournament storage tournament = tournaments[_tournamentId];
         return (
-            tournament.date,
             tournament.matchCount,
             tournament.rankings
         );
     }
 }
+
+// API_URL = "https://eth-sepolia.g.alchemy.com/v2/mC-3TkJ8pL10i_IDboEpAlPr9Xk5izZN"
+// PRIVATE_KEY = "116f4ec0a278cb63410957bbce3bb879bc34d3415831d066e9f67fae5ac7f6e4"
+// CONTACT_ADDRESS = "0xC3431b356bf3798593B0eF8FAfdd11CE3DdDA684"
