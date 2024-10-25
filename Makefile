@@ -1,4 +1,4 @@
-NAME = pong
+NAME = node
 
 all: $(NAME)
 
