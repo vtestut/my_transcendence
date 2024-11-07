@@ -1,11 +1,10 @@
 version: "3"
 
 services:
-  node:
-    build: ./node/ # docker compose cherche un dockerfile dans ce folder pour créer l'image
-    image: node
-    container_name: node
+  blockchain:
+    build: ./blockchain/
+    image: blockchain
+    container_name: blockchain
     volumes:
-      - ./node:/node
-    command: /bin/bash -c "/node/init.sh && /bin/bash"
+      - ./blockchain:/blockchain
     tty: true  # garde le terminal ouvert

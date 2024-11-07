@@ -12,8 +12,9 @@
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "chai": "^5.1.1",
+    "chai-eventemitter2": "^0.2.1",
     "ethers": "^5.7.2",
-    "hardhat": "^2.22.14",
+    "hardhat": "^2.22.15",
     "mocha": "^10.7.3"
   },
   "dependencies": {
